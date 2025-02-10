@@ -1,1 +1,32 @@
+name: Android APK Build & Release
 
+on:
+  push:
+    branches:
+      - main  # Runs on new commits to 'main' branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠 Checkout Repository
+        uses: actions/checkout@v2
+        
+      - name: 🏗 Set Up Build Environment
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip openjdk-17-jdk
+          pip install --upgrade buildozer
+
+      - name: 🔨 Build APK
+        run: |
+          buildozer -v android debug
+
+      - name: 📤 Upload APK to GitHub Releases
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/*.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
